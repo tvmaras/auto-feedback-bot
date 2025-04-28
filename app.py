@@ -1,50 +1,50 @@
-from flask import Flask, request, jsonify
-import openai
-import os
-import json
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-
-app = Flask(__name__)
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
 import json
 import os
 import gspread
 from google.oauth2.service_account import Credentials
+from flask import Flask, request, jsonify
 
-# Ładujemy credentials z ENV: CREDENTIALS_JSON
-credentials_info = json.loads(os.environ['CREDENTIALS_JSON'])
-credentials = Credentials.from_service_account_info(credentials_info)
+app = Flask(__name__)
 
-gc = gspread.authorize(credentials)
+# Ładujemy Google Credentials z ENV
+try:
+    credentials_info = json.loads(os.environ['CREDENTIALS_JSON'])
+    credentials = Credentials.from_service_account_info(credentials_info)
+    gc = gspread.authorize(credentials)
+except Exception as e:
+    print(f"Error loading Google credentials: {e}")
+    raise e
 
-sh = gc.open("StudentFeedback")  # <-- zmienisz na swoją nazwę arkusza
-worksheet = sh.sheet1
+# Otwieramy Google Sheet (upewnij się, że masz arkusz o takiej nazwie!)
+try:
+    sh = gc.open("StudentFeedback")  # <-- tu podmień na swoją nazwę arkusza
+    worksheet = sh.sheet1
+except Exception as e:
+    print(f"Error opening Google Sheet: {e}")
+    raise e
 
 @app.route('/')
 def home():
-    return "Auto Feedback Bot is running!"
+    return 'Auto Feedback Bot is running! 🚀'
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
-    data = request.get_json()
-    question = data.get('question')
-    answer = data.get('answer')
+    try:
+        data = request.get_json()
+        student_name = data['student_name']
+        subject = data['subject']
+        answers = data['answers']
 
-    prompt = f"Question: {question}\nStudent Answer: {answer}\nEvaluate the answer, give short and precise feedback in English."
+        # Tutaj możesz dodać logikę sprawdzania odpowiedzi i generowania feedbacku
+        feedback = f"Thank you, {student_name}! Good work on {subject}."
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful and concise English teacher."},
-            {"role": "user", "content": prompt}
-        ]
-    )
+        # Dodajemy wpis do Google Sheets
+        worksheet.append_row([student_name, subject, json.dumps(answers), feedback])
 
-    feedback_text = response['choices'][0]['message']['content'].strip()
-    return jsonify({"feedback": feedback_text})
+        return jsonify({'status': 'success', 'feedback': feedback})
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=10000)
+    app.run(host="0.0.0.0", port=10000)
