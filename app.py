@@ -1,69 +1,73 @@
-import json
 import os
+import json
 import openai
 import gspread
-from google.oauth2.service_account import Credentials
 from flask import Flask, request, jsonify
+from google.oauth2.service_account import Credentials
 
-# Konfiguracja OpenAI
+# Ładowanie klucza API OpenAI
 openai.api_key = os.environ['OPENAI_API_KEY']
 
-# Ładowanie Google Sheets credentials
+# Ładowanie poświadczeń do Google Sheets
 credentials_info = json.loads(os.environ['GOOGLE_CREDENTIALS'])
 
-# WAŻNE: Dodanie poprawnego scope
-scopes = ['https://www.googleapis.com/auth/spreadsheets']
-credentials = Credentials.from_service_account_info(credentials_info, scopes=scopes)
+scopes = [
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/spreadsheets"
+]
 
-# Autoryzacja do Google Sheets
+credentials = Credentials.from_service_account_info(credentials_info, scopes=scopes)
 gc = gspread.authorize(credentials)
 
-# Otwieranie arkusza
-sh = gc.open("StudentFeedback")  # <-- Zamień na nazwę swojego arkusza jeśli masz inną!
+# Otwieramy arkusz (upewnij się, że nazwa jest poprawna!)
+sh = gc.open("StudentFeedback")  # <-- zmień tutaj nazwę na swoją jeśli masz inną!
 worksheet = sh.sheet1
 
-# Konfiguracja Flask
+# Tworzymy aplikację Flask
 app = Flask(__name__)
 
-# Endpoint do testu działania
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
-    return "Auto Feedback Bot is live!"
+    return "Auto Feedback Bot is running!"
 
-# Endpoint do oceny odpowiedzi
 @app.route('/feedback', methods=['POST'])
 def feedback():
     try:
-        data = request.json
+        data = request.get_json()
+
+        if not data or 'student_name' not in data or 'answers' not in data:
+            return jsonify({'error': 'Invalid input!'}), 400
+
         student_name = data['student_name']
-        answers = data['answers']  # Lista odpowiedzi ucznia
+        answers = data['answers']  # zakładamy, że answers to lista odpowiedzi
 
-        all_feedback = []
-        correct_answers = 0
+        # Tworzenie prompta dla OpenAI
+        prompt = f"Evaluate the following student's answers and provide specific, helpful feedback. If the answer is correct, say 'Correct'. If wrong, explain why and suggest improvements.\n\nAnswers:\n"
+        for i, ans in enumerate(answers, 1):
+            prompt += f"{i}. {ans}\n"
 
-        for i, answer in enumerate(answers, 1):
-            prompt = f"Evaluate the student's answer:\nQuestion {i}: {answer}\nGive a brief and clear feedback."
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[{"role": "user", "content": prompt}]
-            )
-            feedback_text = response['choices'][0]['message']['content'].strip()
-            all_feedback.append((answer, feedback_text))
+        prompt += "\nWrite clear and concise feedback for each answer in English."
 
-            if "correct" in feedback_text.lower() or "good" in feedback_text.lower():
-                correct_answers += 1
+        # Wysyłanie do OpenAI
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert English teacher helping students improve their writing and reading skills."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.4
+        )
 
-        total_questions = len(answers)
-        score_percentage = round((correct_answers / total_questions) * 100, 2)
+        feedback_text = response['choices'][0]['message']['content']
 
-        # Przygotuj dane do zapisania w arkuszu
-        row = [student_name, f"{score_percentage}%"] + [f"A{i}: {ans} | Feedback: {fb}" for i, (ans, fb) in enumerate(all_feedback, 1)]
-        worksheet.append_row(row)
+        # Zapisywanie do arkusza
+        worksheet.append_row([student_name, json.dumps(answers), feedback_text])
 
-        return jsonify({"message": "Feedback generated and saved.", "score": score_percentage})
+        return jsonify({'message': 'Feedback generated successfully!', 'feedback': feedback_text}), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+        print("Error:", e)
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=10000)
+    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
