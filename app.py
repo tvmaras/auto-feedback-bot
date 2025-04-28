@@ -9,17 +9,18 @@ app = Flask(__name__)
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Load Google Sheets credentials
 import json
 import os
 import gspread
 from google.oauth2.service_account import Credentials
 
-credentials_info = json.loads(os.environ['GOOGLE_CREDENTIALS'])
+# Ładujemy credentials z ENV: CREDENTIALS_JSON
+credentials_info = json.loads(os.environ['CREDENTIALS_JSON'])
 credentials = Credentials.from_service_account_info(credentials_info)
+
 gc = gspread.authorize(credentials)
 
-sh = gc.open("StudentFeedback")  # <-- podmienisz na swoją nazwę arkusza
+sh = gc.open("StudentFeedback")  # <-- zmienisz na swoją nazwę arkusza
 worksheet = sh.sheet1
 
 @app.route('/')
