@@ -20,7 +20,7 @@ credentials = Credentials.from_service_account_info(credentials_info, scopes=sco
 gc = gspread.authorize(credentials)
 
 # Otwieramy arkusz (upewnij się, że nazwa jest poprawna!)
-sh = gc.open("StudentFeedback")  # <-- zmień tutaj nazwę na swoją jeśli masz inną!
+sh = gc.open("Maths Calculator (Responses)")  # <-- zmień tutaj nazwę na swoją jeśli masz inną!
 worksheet = sh.sheet1
 
 # Tworzymy aplikację Flask
