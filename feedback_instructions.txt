@@ -1,0 +1,165 @@
+Q1
+Question: What is the name of the shape?
+Correct Answer: Cube
+Detailed Explanation:
+The figure shown has 6 equal square faces. Each edge of the figure is the same length.
+In geometry, a 3D shape with all sides as squares and equal length edges is called a cube.
+If the student answers "cube", mark it as correct.
+If the answer is different, mark it as incorrect.
+
+Q2
+Question: Tick all the black counters.
+Correct Answer: A, B, D, G, H
+Detailed Explanation:
+The task is to select only the counters that are colored black.
+Counters A, B, D, G, and H are black.
+If the student selects all these and only these (no extra counters), mark as correct.
+If they miss any or select wrong ones, mark it as incorrect.
+
+Q3
+Question: Compare the weights of Letter X and Letter Y.
+Correct Answer: D — lighter than
+Detailed Explanation:
+Letter X weighs 15 grams and Letter Y weighs 18 grams.
+Since 15 grams is less than 18 grams, Letter X is lighter than Letter Y.
+The student must select "lighter than" to be correct.
+
+Q4a
+Question: Which player can have the next turn?
+Correct Answer: Player B
+Detailed Explanation:
+The sequence ends at a tile showing 4 o’clock.
+Player B holds a domino showing "4:00" (digital clock) matching this.
+The student must select Player B to be correct.
+
+Q4b
+Question: Who is the winner (fewest dominoes)?
+Correct Answer: Player D
+Detailed Explanation:
+The player with the smallest number of dominoes left is the winner.
+- Player A: 2 dominoes
+- Player B: 4 dominoes
+- Player C: 3 dominoes
+- Player D: 1 domino (smallest number)
+If the student selects Player D, the answer is correct.
+
+Q5a
+Question: What answer should Player A give after rolling 4?
+Correct Answer: Thursday
+Detailed Explanation:
+Player A rolls 4. Moving from "The first day of the week is..." (starting point):
+1. First move: "Yesterday was"
+2. Second move: "Tomorrow is"
+3. Third move: "The day after Monday is"
+4. Fourth move: The day before Friday is
+The day before Friday is Thursday.
+If the student answers "Thursday", mark it correct.
+
+Q5b
+Question: Is Player B correct in saying "Saturday"?
+Correct Answer: No
+Detailed Explanation:
+Player B rolls 5. Moving from start:
+1. The first day of the week is
+2. Yesterday was
+3. Tomorrow is
+4. The day after Monday is
+5. The day before Friday is
+The day before Friday is Thursday, not Saturday.
+Expected full response:
+- Yes/No: No
+- Reason: Player B rolls a 5. Starting again from "The first day of the week is...", the fifth box is "The day before Friday". The day before Friday is Thursday, not Saturday.
+
+Q5c
+Question: What number must Player A throw to win?
+Correct Answer: C (5 dots)
+Detailed Explanation:
+Player A is on "The day after Monday is".
+From there, 5 steps are needed to reach "You win!".
+- Therefore, Player A must throw a 5.
+If the student selects the dice with 5 dots, mark correct.
+
+Q6a
+Question: Tick all of the games she can buy with her money.
+Detailed Explanation:
+- The woman has £20 (one £10 note and two £5 notes).
+- She wants to buy as many games as possible without spending more than £20.
+- She should choose 3 games that together cost less than or equal to £20.
+Prices:
+- Fun Facts (A): £8
+- Guess the Star (B): £8
+- Spot It (C): £9
+- Story Cubes (D): £2
+- Travel Quiz (E): £6
+Possible correct combinations (any one):
+- A (£8) + B (£8) + D (£2) = £18
+- A (£8) + E (£6) + D (£2) = £16
+- B (£8) + E (£6) + D (£2) = £16
+Rules for marking:
+- The student must tick exactly 3 games.
+- The total cost must be £20 or less.
+- It is not required to select a specific combination like A, B, D – any valid combination is acceptable.
+- If fewer than 3 games are selected or the total exceeds £20, mark as incorrect.
+
+Q6b
+Question: What is the total amount she will spend?
+Correct Answer: Depends on the games selected in Q6a.
+Detailed Explanation:
+- The total amount depends on the three games the student selected in Q6a.
+- The student must add the prices of the three games they ticked.
+- Accept any total that corresponds correctly to the prices of the selected games.
+- Example:
+  - If a student selected Fun Facts (£8), Guess the Star (£8), and Story Cubes (£2), the total is £18.
+  - If a student selected Fun Facts (£8), Travel Quiz (£6), and Story Cubes (£2), the total is £16.
+- Mark correct if the total matches the selected games' prices.
+- Mark incorrect if there is a mistake in addition or wrong prices.
+
+Q6c
+Question: How much change, and in what coins?
+Correct Answer: Depends on the total calculated in Q6b.
+Detailed Explanation:
+- The amount of change = £20 minus the amount calculated in Q6b.
+- Available coins for change:
+  - £2 coin
+  - Two £1 coins
+- Example:
+  - If total spent was £18, change is £2.
+    - Possible coins: one £2 coin OR two £1 coins.
+  - If total spent was £16, change is £4.
+    - Possible coins: two £2 coins OR four £1 coins.
+- Mark correct if the coins selected add up exactly to the change amount.
+- Mark incorrect if the coins do not match the correct total.
+
+Q7a
+Question: Show how to check 3 + 4 = 7.
+Correct Answer: 7 - 4 = 3 or 7 – 3 = 4
+Detailed Explanation:
+Using inverse operations:
+- If 3 + 4 = 7, then 7 - 4 = 3. The student should subtract one number from the total to verify the other number.
+
+Q7b
+Question: Word scores – who has the highest total?
+Correct Scores:
+- KING: 5 + 1 + 1 + 2 = 9
+- ZEBRA: 10 + 1 + 3 + 1 + 1 = 16
+Answer:
+- Yes, Player B is correct.
+- Reason:
+Player B’s word (ZEBRA) has a total score of 16 points, while Player A’s word (KING) has only 9 points.
+Since 16 is greater than 9, Player B has the higher score.
+
+Q8a
+Question: Complete the tally chart.
+Correct Answer: Option B
+Detailed Explanation:
+Counting "Game of Fun" entries:
+- 7 times.
+- Tally should show 7 sticks → 5 + 2 tallies (Option B).
+
+Q8b
+Question: Which game sold the most?
+Correct Answer: Lago
+Detailed Explanation:
+From the tally chart, Lago has the most tallies (10).
+Student must write Lago to be correct.
+
