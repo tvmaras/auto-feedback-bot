@@ -2,8 +2,9 @@ import os
 import json
 import openai
 import gspread
-from flask import Flask, request, jsonify
+from flask import Flask
 from google.oauth2.service_account import Credentials
+from fpdf import FPDF
 
 # Ładowanie klucza API OpenAI
 openai.api_key = os.environ['OPENAI_API_KEY']
@@ -19,55 +20,85 @@ scopes = [
 credentials = Credentials.from_service_account_info(credentials_info, scopes=scopes)
 gc = gspread.authorize(credentials)
 
-# Otwieramy arkusz (upewnij się, że nazwa jest poprawna!)
-sh = gc.open("Maths Calculator (Responses)")  # <-- zmień tutaj nazwę na swoją jeśli masz inną!
+# Otwieramy arkusz
+sh = gc.open("Maths Calculator (Responses)")  # <-- Upewnij się, że nazwa arkusza jest poprawna
 worksheet = sh.sheet1
 
 # Tworzymy aplikację Flask
 app = Flask(__name__)
 
+# Ścieżka zapisu PDF
+EVIDENCE_FOLDER = "./evidence"
+
+if not os.path.exists(EVIDENCE_FOLDER):
+    os.makedirs(EVIDENCE_FOLDER)
+
 @app.route('/', methods=['GET'])
 def home():
     return "Auto Feedback Bot is running!"
 
-@app.route('/feedback', methods=['POST'])
-def feedback():
+@app.route('/generate_feedback', methods=['POST'])
+def generate_feedback():
     try:
-        data = request.get_json()
+        # Pobieramy wszystkie odpowiedzi
+        records = worksheet.get_all_records()
 
-        if not data or 'student_name' not in data or 'answers' not in data:
-            return jsonify({'error': 'Invalid input!'}), 400
+        # Pobieramy tytuł formularza (nazwa arkusza)
+        form_title = sh.title
 
-        student_name = data['student_name']
-        answers = data['answers']  # zakładamy, że answers to lista odpowiedzi
+        for record in records:
+            student_name = record.get('Name', 'Unknown Student')
+            answers = []
 
-        # Tworzenie prompta dla OpenAI
-        prompt = f"Evaluate the following student's answers and provide specific, helpful feedback. If the answer is correct, say 'Correct'. If wrong, explain why and suggest improvements.\n\nAnswers:\n"
-        for i, ans in enumerate(answers, 1):
-            prompt += f"{i}. {ans}\n"
+            # Pomijamy pola typu Timestamp lub Name
+            for key, value in record.items():
+                if key.lower() not in ['timestamp', 'name']:
+                    answers.append(f"{key}: {value}")
 
-        prompt += "\nWrite clear and concise feedback for each answer in English."
+            # Tworzymy prompt
+            prompt = f"""Evaluate the following student's answers to a math exam based on these detailed correct answers and marking rules:
 
-        # Wysyłanie do OpenAI
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are an expert English teacher helping students improve their writing and reading skills."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.4
-        )
+{open('instructions.txt').read()}
 
-        feedback_text = response['choices'][0]['message']['content']
+Student's answers:
+"""
+            for answer in answers:
+                prompt += f"{answer}\n"
 
-        # Zapisywanie do arkusza
-        worksheet.append_row([student_name, json.dumps(answers), feedback_text])
+            prompt += "\nPlease generate specific, constructive feedback for each question. Write in English. Be clear, but concise."
 
-        return jsonify({'message': 'Feedback generated successfully!', 'feedback': feedback_text}), 200
+            # Wysyłamy do OpenAI
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are an expert Math examiner providing student feedback."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.2
+            )
+
+            feedback_text = response['choices'][0]['message']['content']
+
+            # Tworzymy PDF
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.set_font("Arial", size=12)
+
+            pdf.cell(0, 10, f"Student: {student_name}", ln=True)
+            pdf.cell(0, 10, f"Form: {form_title}", ln=True)
+            pdf.ln(10)
+
+            for line in feedback_text.split('\n'):
+                pdf.multi_cell(0, 10, line)
+
+            pdf_filename = f"{EVIDENCE_FOLDER}/{student_name.replace(' ', '_')}_{form_title.replace(' ', '_')}.pdf"
+            pdf.output(pdf_filename)
+
+        return {"message": "All feedback generated successfully!"}, 200
 
     except Exception as e:
         print("Error:", e)
-        return jsonify({'error': str(e)}), 500
+        return {"error": str(e)}, 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
